@@ -1,0 +1,17 @@
+# Directorios
+node_modules/
+dist/
+coverage/
+.env
+
+# Archivos de registro
+logs/
+*.log
+
+# Archivos generados por el sistema
+.DS_Store
+Thumbs.db
+
+# Archivos temporales
+*.tmp
+*.swp
