@@ -1,7 +1,7 @@
 const express = require("express");
 const { firebaseAuth } = require("../../firebase");
 const { doc, setDoc } = require("firebase/firestore");
-const {signInWithEmailAndPassword, createUserWithEmailAndPassword ,signOut  } = require("firebase/auth");
+const {signInWithEmailAndPassword, createUserWithEmailAndPassword ,signOut, onAuthStateChanged  } = require("firebase/auth");
 
 const app = express();
 
@@ -63,6 +63,26 @@ app.get('/logout', (req, res) => {
     res.status(500).send(`Error al cerrar sesión ${error}`)
   }
 });
+
+
+app.get('/verify-auth', (req, res) => {
+  try{
+    onAuthStateChanged(email).then((user)=>{
+      if(user){
+        res.status(200).send({auth: true});
+      }else{
+        res.status(200).send({auth: false});
+      }
+      
+    }).catch((error)=>{
+      res.status(500).send(`Error al validar sesión ${error.message}`)
+    })
+  
+  }catch(error){
+    res.status(500).send(`Error: ${error}`)
+  }
+});
+
 
 module.exports = app;
 
