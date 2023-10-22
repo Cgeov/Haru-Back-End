@@ -8,6 +8,8 @@ const {
   deleteDoc,
   getDoc,
   getDocs,
+  where,
+  query,
 } = require("firebase/firestore");
 
 const app = express();
@@ -31,7 +33,9 @@ app.post("/add", async (req, res) => {
     };
 
     await addDoc(dbRef, documentData).then((result) => {
-      res.status(200).send("Documento agregado exitosamente");
+      res
+        .status(200)
+        .json({ result: "Documento agregado exitosamente", id: result.id });
     });
   } catch (error) {
     console.error(`Error: ${error}`);
@@ -55,7 +59,7 @@ app.put("/update", async (req, res) => {
       updated_at: new Date(),
     })
       .then(() => {
-        res.status(200).send(`Documento actualizado Exitosamente`);
+        res.status(200).json({ result: `Documento actualizado Exitosamente` });
       })
       .catch((error) => {
         res.status(500).send(`Error: ${error}`);
@@ -78,7 +82,7 @@ app.delete("/delete", async (req, res) => {
   }
   await deleteDoc(doc(firebaseFirestore, req.body.collection, req.body.id))
     .then(() => {
-      res.status(200).send(`Documento Eliminado Exitosamente`);
+      res.status(200).json({ result: `Documento Eliminado Exitosamente` });
     })
     .catch((error) => {
       res.status(500).send(`Error: ${error}`);
@@ -102,7 +106,7 @@ app.get("/getDoc", async (req, res) => {
       if (data.data() == undefined) {
         res.status(400).send("No se encontró ningun Documento");
       } else {
-        res.status(200).send({ id: data.id, ...data.data() });
+        res.status(200).json({ id: data.id, ...data.data() });
       }
     })
     .catch((error) => {
@@ -123,11 +127,53 @@ app.get("/getCollection", async (req, res) => {
           data.push({ id: doc.id, ...doc.data() });
         });
       }
-      res.status(200).send(data);
+      res.status(200).json(data);
     })
     .catch((error) => {
       res.status(400).send(error);
     });
+});
+
+app.get("/getDocsFilter", async (req, res) => {
+  if (req.body.collection == undefined || req.body.collection == "") {
+    res.status(400).send("Falta de Campos");
+    return;
+  }
+
+  if (
+    req.body.filter == undefined ||
+    !Array.isArray(req.body.filter) ||
+    req.body.filter.length == 0
+  ) {
+    res.status(400).send("Estructura del arreglo filtros incorrecta o vacia");
+    return;
+  }
+
+  let queryConstraints = [];
+
+  if (req.body.filter && Array.isArray(req.body.filter)) {
+    req.body.filter.forEach((filter) => {
+      if (filter.field && filter.comparison && filter.value) {
+        queryConstraints.push(
+          where(filter.field, filter.comparison, filter.value)
+        );
+      }
+    });
+  }
+
+  const q = query(
+    collection(firebaseFirestore, req.body.collection),
+    ...queryConstraints
+  );
+  await getDocs(q).then((querySnapshot) => {
+    let data = [];
+    if (querySnapshot.size > 0) {
+      querySnapshot.forEach((doc) => {
+        data.push({ id: doc.id, ...doc.data() });
+      });
+    }
+    res.status(200).json(data);
+  });
 });
 
 module.exports = app;
