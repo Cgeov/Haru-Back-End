@@ -165,15 +165,19 @@ app.get("/getDocsFilter", async (req, res) => {
     collection(firebaseFirestore, req.body.collection),
     ...queryConstraints
   );
-  await getDocs(q).then((querySnapshot) => {
-    let data = [];
-    if (querySnapshot.size > 0) {
-      querySnapshot.forEach((doc) => {
-        data.push({ id: doc.id, ...doc.data() });
-      });
-    }
-    res.status(200).json(data);
-  });
+  await getDocs(q)
+    .then((querySnapshot) => {
+      let data = [];
+      if (querySnapshot.size > 0) {
+        querySnapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...doc.data() });
+        });
+      }
+      res.status(200).json(data);
+    })
+    .catch((error) => {
+      res.status(500).send(error);
+    });
 });
 
 module.exports = app;
