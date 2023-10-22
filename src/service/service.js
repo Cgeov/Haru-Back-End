@@ -6,6 +6,8 @@ const {
   addDoc,
   collection,
   deleteDoc,
+  getDoc,
+  getDocs,
 } = require("firebase/firestore");
 
 const app = express();
@@ -80,6 +82,51 @@ app.delete("/delete", async (req, res) => {
     })
     .catch((error) => {
       res.status(500).send(`Error: ${error}`);
+    });
+});
+
+app.get("/getDoc", async (req, res) => {
+  if (
+    req.body.id == undefined ||
+    req.body.id == "" ||
+    req.body.collection == undefined ||
+    req.body.collection == ""
+  ) {
+    res.status(400).send("Falta de Campos");
+    return;
+  }
+
+  const docRef = doc(firebaseFirestore, req.body.collection, req.body.id);
+  await getDoc(docRef)
+    .then((data) => {
+      if (data.data() == undefined) {
+        res.status(400).send("No se encontró ningun Documento");
+      } else {
+        res.status(200).send({ id: data.id, ...data.data() });
+      }
+    })
+    .catch((error) => {
+      res.status(400).send(error);
+    });
+});
+
+app.get("/getCollection", async (req, res) => {
+  if (req.body.collection == undefined || req.body.collection == "") {
+    res.status(400).send("Falta de Campos");
+    return;
+  }
+  await getDocs(collection(firebaseFirestore, req.body.collection))
+    .then((querySnapshot) => {
+      let data = [];
+      if (querySnapshot.size > 0) {
+        querySnapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...doc.data() });
+        });
+      }
+      res.status(200).send(data);
+    })
+    .catch((error) => {
+      res.status(400).send(error);
     });
 });
 
