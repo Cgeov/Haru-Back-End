@@ -1,5 +1,5 @@
 const express = require("express");
-const { firebaseAuth } = require("../../firebase");
+const { firebaseAuth, firebaseFirestore } = require("../../firebase");
 const { doc, setDoc } = require("firebase/firestore");
 const {signInWithEmailAndPassword, createUserWithEmailAndPassword ,signOut, onAuthStateChanged  } = require("firebase/auth");
 
@@ -35,21 +35,26 @@ app.post('/sign-up', (req, res) => {
   createUserWithEmailAndPassword(firebaseAuth,req.body.email, req.body.password)
     .then(async(userCredential) => {
       const user = userCredential.user;
-      await setDoc(doc(db, "accounts", response.user.uid), {
-        id: response.user.uid,
+      await setDoc(doc(firebaseFirestore, "accounts", userCredential.user.uid), {
+        id: userCredential.user.uid,
         name: req.body.name,
         lastname: req.body.name,
         typeUser: 'client',
         email: req.body.name,
         created_at: new Date(),
+      }).catch((error)=>{
+        res.status(500).send(`Error: ${error}`);
       });
       res.status(200).send('Usuario Creado');
     })
-    .catch(error => {
-      res.status(500).send(`Error de Registro de usuario: ${error.message}`);
+    .catch((error) => {
+      if(error.code == 'auth/email-already-in-use'){
+        res.status(400).send("Email Ingresado previamente");
+      }else{
+        res.status(500).send(`Error de Registro de usuario: ${error.message}`);
+      }
     });
 });
-
 
 app.get('/logout', (req, res) => {
   try{
@@ -63,7 +68,6 @@ app.get('/logout', (req, res) => {
     res.status(500).send(`Error al cerrar sesión ${error}`)
   }
 });
-
 
 app.get('/verify-auth', (req, res) => {
   try{
