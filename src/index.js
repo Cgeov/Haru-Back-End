@@ -3,9 +3,7 @@ const indexroutes = require("./routes/index.js");
 const cors = require("cors");
 const app = express();
 
-// Habilitar CORS para permitir solicitudes desde localhost:3000
 app.use(cors({ origin: "http://localhost:3000" }));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(indexroutes);
