@@ -89,7 +89,7 @@ app.delete("/delete", async (req, res) => {
     });
 });
 
-app.get("/getDoc", async (req, res) => {
+app.post("/getDoc", async (req, res) => {
   if (
     req.body.id == undefined ||
     req.body.id == "" ||
@@ -114,7 +114,7 @@ app.get("/getDoc", async (req, res) => {
     });
 });
 
-app.get("/getCollection", async (req, res) => {
+app.post("/getCollection", async (req, res) => {
   if (req.body.collection == undefined || req.body.collection == "") {
     res.status(400).send("Falta de Campos");
     return;
@@ -134,7 +134,7 @@ app.get("/getCollection", async (req, res) => {
     });
 });
 
-app.get("/getDocsFilter", async (req, res) => {
+app.post("/getDocsFilter", async (req, res) => {
   if (req.body.collection == undefined || req.body.collection == "") {
     res.status(400).send("Falta de Campos");
     return;
