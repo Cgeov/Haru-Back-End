@@ -10,7 +10,7 @@ const {
 
 const app = express();
 
-app.get("/sign-in", (req, res) => {
+app.post("/sign-in", (req, res) => {
   if (
     req.body.email == undefined ||
     req.body.password == undefined ||
@@ -72,7 +72,7 @@ app.post("/sign-up", (req, res) => {
     });
 });
 
-app.get("/logout", (req, res) => {
+app.post("/logout", (req, res) => {
   try {
     signOut(firebaseAuth)
       .then(() => {
@@ -86,7 +86,7 @@ app.get("/logout", (req, res) => {
   }
 });
 
-app.get("/verify-auth", (req, res) => {
+app.post("/verify-auth", (req, res) => {
   try {
     onAuthStateChanged(email)
       .then((user) => {
