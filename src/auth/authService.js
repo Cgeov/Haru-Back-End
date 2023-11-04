@@ -20,14 +20,15 @@ app.post("/sign-in", (req, res) => {
     res.status(400).send("Faltan Campos");
     return;
   }
-
+  console.log(req.body.email, req.body.password);
   signInWithEmailAndPassword(firebaseAuth, req.body.email, req.body.password)
     .then((userCredential) => {
       const user = userCredential.user;
-      res.status(200).json({ status: "ok", id: user.uid });
+      
+      res.status(200).json({ id: user.uid });
     })
     .catch((error) => {
-      res.status(500).send(`Error de autenticación: ${error.message}`);
+      res.status(400).send(`Error de autenticación: ${error.message}`);
     });
 });
 
