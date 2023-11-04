@@ -24,7 +24,7 @@ app.post("/sign-in", (req, res) => {
   signInWithEmailAndPassword(firebaseAuth, req.body.email, req.body.password)
     .then((userCredential) => {
       const user = userCredential.user;
-      res.status(200).send(`¡Bienvenido, ${user.email}!`);
+      res.status(200).json({ status: "ok", id: user.uid });
     })
     .catch((error) => {
       res.status(500).send(`Error de autenticación: ${error.message}`);
@@ -32,6 +32,7 @@ app.post("/sign-in", (req, res) => {
 });
 
 app.post("/sign-up", (req, res) => {
+  console.log(req.body);
   if (
     req.body.name == undefined ||
     req.body.lastname == undefined ||
@@ -61,7 +62,14 @@ app.post("/sign-up", (req, res) => {
       ).catch((error) => {
         res.status(500).send(`Error: ${error}`);
       });
-      res.status(200).send("Usuario Creado");
+      res.status(200).json({
+        id: userCredential.user.uid,
+        name: req.body.name,
+        lastname: req.body.lastname,
+        typeUser: "client",
+        email: req.body.email,
+        created_at: new Date(),
+      });
     })
     .catch((error) => {
       if (error.code == "auth/email-already-in-use") {
