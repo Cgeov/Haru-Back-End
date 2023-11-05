@@ -1,6 +1,6 @@
 const express = require("express");
 const { firebaseAuth, firebaseFirestore } = require("../../firebase");
-const { doc, setDoc } = require("firebase/firestore");
+const { doc, setDoc, getDoc } = require("firebase/firestore");
 const {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -22,10 +22,12 @@ app.post("/sign-in", (req, res) => {
   }
   console.log(req.body.email, req.body.password);
   signInWithEmailAndPassword(firebaseAuth, req.body.email, req.body.password)
-    .then((userCredential) => {
+    .then(async (userCredential) => {
       const user = userCredential.user;
-
-      res.status(200).json({ id: user.uid });
+      const docRef = doc(firebaseFirestore, "accounts", user.uid);
+      await getDoc(docRef).then((data) => {
+        res.status(200).json(data.data());
+      });
     })
     .catch((error) => {
       res
@@ -35,7 +37,6 @@ app.post("/sign-in", (req, res) => {
 });
 
 app.post("/sign-up", (req, res) => {
-  console.log(req.body);
   if (
     req.body.name == undefined ||
     req.body.lastname == undefined ||
