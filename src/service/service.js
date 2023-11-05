@@ -22,7 +22,9 @@ app.post("/add", async (req, res) => {
       !req.body.document ||
       typeof req.body.document !== "object"
     ) {
-      return res.status(400).send("Falta de Campos o Datos Inválidos");
+      return res
+        .status(400)
+        .json({ error: "Falta de Campos o Datos Inválidos" });
     }
 
     const dbRef = collection(firebaseFirestore, req.body.collection);
@@ -39,7 +41,7 @@ app.post("/add", async (req, res) => {
     });
   } catch (error) {
     console.error(`Error: ${error}`);
-    res.status(500).send("Ocurrió un error al agregar el documento");
+    res.status(400).json({ error: "Ocurrió un error al agregar el documento" });
   }
 });
 
@@ -51,7 +53,9 @@ app.put("/update", async (req, res) => {
       !req.body.document ||
       typeof req.body.document !== "object"
     ) {
-      return res.status(400).send("Falta de Campos o Datos Inválidos");
+      return res
+        .status(400)
+        .json({ error: "Falta de Campos o Datos Inválidos" });
     }
 
     await setDoc(doc(firebaseFirestore, req.body.collection, req.body.id), {
@@ -62,11 +66,13 @@ app.put("/update", async (req, res) => {
         res.status(200).json({ result: `Documento actualizado Exitosamente` });
       })
       .catch((error) => {
-        res.status(500).send(`Error: ${error}`);
+        res.status(400).json({ error: `Error: ${error}` });
       });
   } catch (error) {
     console.error(`Error: ${error}`);
-    res.status(500).send("Ocurrió un error al modificar el documento");
+    res
+      .status(400)
+      .json({ error: "Ocurrió un error al modificar el documento" });
   }
 });
 
@@ -77,7 +83,7 @@ app.delete("/delete", async (req, res) => {
     req.body.collection == undefined ||
     req.body.collection == ""
   ) {
-    res.status(400).send("Falta de Campos");
+    res.status(400).json({ error: "Falta de Campos" });
     return;
   }
   await deleteDoc(doc(firebaseFirestore, req.body.collection, req.body.id))
@@ -85,7 +91,7 @@ app.delete("/delete", async (req, res) => {
       res.status(200).json({ result: `Documento Eliminado Exitosamente` });
     })
     .catch((error) => {
-      res.status(500).send(`Error: ${error}`);
+      res.status(400).json({ error: `Error: ${error}` });
     });
 });
 
@@ -96,7 +102,7 @@ app.post("/getDoc", async (req, res) => {
     req.body.collection == undefined ||
     req.body.collection == ""
   ) {
-    res.status(400).send("Falta de Campos");
+    res.status(400).json({ error: "Falta de Campos" });
     return;
   }
 
@@ -104,19 +110,19 @@ app.post("/getDoc", async (req, res) => {
   await getDoc(docRef)
     .then((data) => {
       if (data.data() == undefined) {
-        res.status(400).send("No se encontró ningun Documento");
+        res.status(400).json({ error: "No se encontró ningun Documento" });
       } else {
         res.status(200).json({ id: data.id, ...data.data() });
       }
     })
     .catch((error) => {
-      res.status(400).send(error);
+      res.status(400).json({ error: error });
     });
 });
 
 app.post("/getCollection", async (req, res) => {
   if (req.body.collection == undefined || req.body.collection == "") {
-    res.status(400).send("Falta de Campos");
+    res.status(400).json({ error: "Falta de Campos" });
     return;
   }
   await getDocs(collection(firebaseFirestore, req.body.collection))
@@ -130,13 +136,13 @@ app.post("/getCollection", async (req, res) => {
       res.status(200).json(data);
     })
     .catch((error) => {
-      res.status(400).send(error);
+      res.status(400).json({ error: error });
     });
 });
 
 app.post("/getDocsFilter", async (req, res) => {
   if (req.body.collection == undefined || req.body.collection == "") {
-    res.status(400).send("Falta de Campos");
+    res.status(400).json({ error: "Falta de Campos" });
     return;
   }
 
@@ -145,7 +151,9 @@ app.post("/getDocsFilter", async (req, res) => {
     !Array.isArray(req.body.filter) ||
     req.body.filter.length == 0
   ) {
-    res.status(400).send("Estructura del arreglo filtros incorrecta o vacia");
+    res
+      .status(400)
+      .json({ error: "Estructura del arreglo filtros incorrecta o vacia" });
     return;
   }
 
@@ -176,7 +184,7 @@ app.post("/getDocsFilter", async (req, res) => {
       res.status(200).json(data);
     })
     .catch((error) => {
-      res.status(500).send(error);
+      res.status(400).json({ error: error });
     });
 });
 

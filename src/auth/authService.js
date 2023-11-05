@@ -17,18 +17,20 @@ app.post("/sign-in", (req, res) => {
     req.body.email == "" ||
     req.body.password == ""
   ) {
-    res.status(400).send("Faltan Campos");
+    res.status(400).json({ error: "Faltan Campos" });
     return;
   }
   console.log(req.body.email, req.body.password);
   signInWithEmailAndPassword(firebaseAuth, req.body.email, req.body.password)
     .then((userCredential) => {
       const user = userCredential.user;
-      
+
       res.status(200).json({ id: user.uid });
     })
     .catch((error) => {
-      res.status(400).send(`Error de autenticación: ${error.message}`);
+      res
+        .status(400)
+        .json({ error: `Error de autenticación: ${error.message}` });
     });
 });
 
@@ -40,7 +42,7 @@ app.post("/sign-up", (req, res) => {
     req.body.name == "" ||
     req.body.lastname == ""
   ) {
-    res.status(400).send("Faltan Campos");
+    res.status(400).json({ error: "Faltan Campos" });
     return;
   }
 
@@ -61,7 +63,7 @@ app.post("/sign-up", (req, res) => {
           created_at: new Date(),
         }
       ).catch((error) => {
-        res.status(500).send(`Error: ${error}`);
+        res.status(400).send({ error: `Error: ${error}` });
       });
       res.status(200).json({
         id: userCredential.user.uid,
@@ -74,9 +76,11 @@ app.post("/sign-up", (req, res) => {
     })
     .catch((error) => {
       if (error.code == "auth/email-already-in-use") {
-        res.status(400).send("Email Ingresado previamente");
+        res.status(400).json({ error: "Email Ingresado previamente" });
       } else {
-        res.status(500).send(`Error de Registro de usuario: ${error.message}`);
+        res
+          .status(400)
+          .json({ error: `Error de Registro de usuario: ${error.message}` });
       }
     });
 });
@@ -85,13 +89,15 @@ app.post("/logout", (req, res) => {
   try {
     signOut(firebaseAuth)
       .then(() => {
-        res.status(200).send("Se cerró sesión");
+        res.status(200).json({ error: "Se cerró sesión" });
       })
       .catch((error) => {
-        res.status(500).send(`Error al cerrar sesión ${error.message}`);
+        res
+          .status(400)
+          .json({ error: `Error al cerrar sesión ${error.message}` });
       });
   } catch (error) {
-    res.status(500).send(`Error al cerrar sesión ${error}`);
+    res.status(400).json({ error: `Error al cerrar sesión ${error}` });
   }
 });
 
@@ -106,10 +112,10 @@ app.post("/verify-auth", (req, res) => {
         }
       })
       .catch((error) => {
-        res.status(500).send(`Error al validar sesión ${error.message}`);
+        res.status(400).send(`Error al validar sesión ${error.message}`);
       });
   } catch (error) {
-    res.status(500).send(`Error: ${error}`);
+    res.status(400).send(`Error: ${error}`);
   }
 });
 
