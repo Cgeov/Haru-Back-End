@@ -64,7 +64,7 @@ app.post("/sign-up", (req, res) => {
           created_at: new Date(),
         }
       ).catch((error) => {
-        res.status(400).send({ error: `Error: ${error}` });
+        res.status(400).json({ error: `Error: ${error}` });
       });
       res.status(200).json({
         id: userCredential.user.uid,
@@ -107,16 +107,16 @@ app.post("/verify-auth", (req, res) => {
     onAuthStateChanged(email)
       .then((user) => {
         if (user) {
-          res.status(200).send({ auth: true });
+          res.status(200).json({ auth: true });
         } else {
-          res.status(200).send({ auth: false });
+          res.status(200).json({ auth: false });
         }
       })
       .catch((error) => {
-        res.status(400).send(`Error al validar sesión ${error.message}`);
+        res.status(400).json(`Error al validar sesión ${error.message}`);
       });
   } catch (error) {
-    res.status(400).send(`Error: ${error}`);
+    res.status(400).json(`Error: ${error}`);
   }
 });
 
