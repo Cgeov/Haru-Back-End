@@ -1,4 +1,5 @@
 const express = require("express");
+const multer = require("multer");
 const { firebaseFirestore } = require("../../firebase");
 const {
   doc,
@@ -11,8 +12,64 @@ const {
   where,
   query,
 } = require("firebase/firestore");
+const {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} = require("firebase/storage");
 
+const upload = multer();
 const app = express();
+
+app.post("/saveImage", upload.single("upl"), async (req, res) => {
+  try {
+    if (!req.file) {
+      res.status(400).json({ error: "Falta de Campos" });
+      return;
+    }
+    const fileExtension = req.file.originalname.split(".").pop();
+
+    // const modifiedFileName = `${req.file.originalname}`;
+
+    const storage = getStorage();
+    const storageRef = ref(
+      storage,
+      `invoices/${generateUUID()}.${fileExtension}`
+    );
+
+    await uploadBytes(storageRef, req.file.buffer).then(async (data) => {
+      await getDownloadURL(storageRef).then((downloadURL) => {
+        res.status(200).json({ message: 'Archivo subido con éxito', url: downloadURL });
+      });
+    });
+  } catch (error) {
+    console.error("Error durante la carga del archivo:", error);
+    res.status(400).json({ error: "Error interno del servidor" });
+  }
+});
+
+function generateUUID() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return (
+    s4() +
+    s4() +
+    "-" +
+    s4() +
+    "-" +
+    s4() +
+    "-" +
+    s4() +
+    "-" +
+    s4() +
+    s4() +
+    s4()
+  );
+}
 
 app.post("/add", async (req, res) => {
   try {

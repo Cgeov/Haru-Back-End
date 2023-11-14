@@ -31,7 +31,7 @@ app.post("/sign-in", (req, res) => {
     })
     .catch((error) => {
       res
-        .status(400)
+        .status(200)
         .json({ error: `Error de autenticación: ${error.message}` });
     });
 });
@@ -77,7 +77,7 @@ app.post("/sign-up", (req, res) => {
     })
     .catch((error) => {
       if (error.code == "auth/email-already-in-use") {
-        res.status(400).json({ error: "Email Ingresado previamente" });
+        res.status(200).json({ error: "Email Ingresado previamente" });
       } else {
         res
           .status(400)
